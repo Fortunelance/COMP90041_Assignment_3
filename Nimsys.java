@@ -9,6 +9,7 @@ import java.util.StringTokenizer;
  * @author Zhejun Lyu 1128727
  */
 public class Nimsys {
+
     //Initials an array list that stores the instances of NimPlayer.
     private static ArrayList<NimPlayer> players = new ArrayList<NimPlayer>();
 
@@ -22,7 +23,7 @@ public class Nimsys {
 
         System.out.print("Welcome to Nim\n\n$");
 
-        //Receive various command from the user multiple times.
+        //Receives various command from the user multiple times.
         while (idle){
 
             String command = console.nextLine();
@@ -244,7 +245,7 @@ public class Nimsys {
      */
     public static void rankings(String command) {
 
-        rankPlayer();
+        rankPlayer(players);
         if (command.equals("rankings")) {
             if (players.size()<10) {
                 for (int i = 0; i < players.size(); i++) {
@@ -295,20 +296,13 @@ public class Nimsys {
     public static void sortPlayers() {
 
         for (int i=0; i<players.size()-1; i++) {
-            int min = i;
+            int precedent = i;
             for (int j=i+1; j< players.size(); j++) {
-                if (players.get(j).getUsername().charAt(0) < players.get(min).getUsername().charAt(0)) {
-                    min = j;
-                }
-                else if (players.get(j).getUsername().charAt(0) == players.get(min).getUsername().charAt(0)) {
-                    if (players.get(j).getUsername().charAt(1) < players.get(min).getUsername().charAt(1)) {
-                        min = j;
-                    }
+                if (players.get(j).getUsername().compareTo(players.get(precedent).getUsername())<0) {
+                    precedent = j;
                 }
             }
-            NimPlayer temp = players.get(i);
-            players.set(i, players.get(min));
-            players.set(min, temp);
+            interchangePlayer(players, precedent, i);
         }
 
     }
@@ -316,25 +310,24 @@ public class Nimsys {
     /**
      * Ranks the player based on winrate.
      */
-    public static void rankPlayer() {
+    public static void rankPlayer(ArrayList<NimPlayer> players) {
 
         for (int i=0; i<players.size()-1; i++) {
-            int max = i;
+            int precedent = i;
             for (int j=i+1; j< players.size(); j++) {
-                if (players.get(j).getWinRate() > players.get(max).getWinRate()) {
-                    max = j;
+                if (players.get(j).compareTo(players.get(precedent))<0) {
+                    precedent = j;
                 }
-                else if (players.get(j).getWinRate() == players.get(max).getWinRate()) {
-                    if (players.get(j).getUsername().charAt(0) < players.get(max).getUsername().charAt(0)) {
-                        max = j;
-                    }
-                }
+                interchangePlayer(players, precedent, i);
             }
-            NimPlayer temp = players.get(i);
-            players.set(i, players.get(max));
-            players.set(max, temp);
         }
 
+    }
+
+    public static void interchangePlayer(ArrayList<NimPlayer> players, int precedent, int i) {
+        NimPlayer temp = new NimPlayer(players.get(i));
+        players.set(i, players.get(precedent));
+        players.set(precedent, temp);
     }
 
     /**

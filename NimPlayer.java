@@ -2,7 +2,7 @@
  * A class of players of Nim game.
  * @author ZHejun Lyu 1128727
  */
-public class NimPlayer  {
+public class NimPlayer implements Comparable<NimPlayer> {
 
     private String username;
     private String familyName;
@@ -26,6 +26,16 @@ public class NimPlayer  {
         this.username = username;
         this.familyName = familyName;
         this.givenName = givenName;
+
+    }
+
+    public NimPlayer (NimPlayer otherPlayer) {
+
+        username = otherPlayer.username;
+        familyName = otherPlayer.familyName;
+        givenName = otherPlayer.givenName;
+        gamesPlayed = otherPlayer.gamesPlayed;
+        gamesWon = otherPlayer.gamesWon;
 
     }
 
@@ -134,6 +144,18 @@ public class NimPlayer  {
             System.out.printf("%-4s | %d games | %s %s\n", getWinRate()+"%", getGamesPlayed(),
                     getGivenName(), getFamilyName());
         }
-
     }
+
+    @Override
+    public int compareTo(NimPlayer otherPlayer) {
+        if (getWinRate() < otherPlayer.getWinRate())
+            return 1;
+
+        else if (getWinRate() == otherPlayer.getWinRate())
+            return getUsername().compareTo(otherPlayer.getUsername());
+
+        else
+            return -1;
+    }
+
 }
