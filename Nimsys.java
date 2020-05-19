@@ -1,3 +1,4 @@
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -9,75 +10,75 @@ import java.util.StringTokenizer;
  * @author Zhejun Lyu 1128727
  */
 public class Nimsys {
-
     //Initials an array list that stores the instances of NimPlayer.
-    private static ArrayList<NimPlayer> players = new ArrayList<NimPlayer>();
+    private static ArrayList<NimPlayer> players = new ArrayList<>();
+
+    //A scanner that receives input from the users.
+    static Scanner console = new Scanner(System.in);
 
     //A boolean value to controls the input choices.
     private static boolean idle = true;
 
-    //A scanner that receives command from the users.
-    public static Scanner console = new Scanner(System.in);
+    //An enumeration contains all the values of the valid commands or the valid initials of the commands.
+    public enum Command {ADDPLAYER, EDITPALYER, REMOVEPLAYER, DISPLAYPLAYER, RESETSTATS, RANKINGS,
+        STARTGAME, EXIT}
 
     public static void main(String[] args) {
-
+        //The welcome message.
         System.out.print("Welcome to Nim\n\n$");
 
-        //Receives various command from the user multiple times.
+        //Receives various inputs from the user for one or multiple time(s).
         while (idle){
 
-            String command = console.nextLine();
-
-            if (command.equals("exit")) {
-                System.out.println();
-                System.exit(0);
+            //Initializes a Command variable.
+            Command command;
+            //Scans the input String.
+            String input = console.nextLine();
+            //Breaks the input String into tokens.
+            StringTokenizer tokenizer = new StringTokenizer(input);
+            //Initialises a String variable to store the initial token of the input String.
+            String commandInitials = "";
+            try {
+                //Picks the initial token of the input String.
+                commandInitials = tokenizer.nextToken();
+                //Compares the initial token of the input String with the valid commands.
+                command = Command.valueOf(commandInitials.toUpperCase());
+                //Takes according actions based on the command
+                switch (command) {
+                    case ADDPLAYER:
+                        addPlayer(input);
+                        break;
+                    case EDITPALYER:
+                        editPlayer(input);
+                        break;
+                    case REMOVEPLAYER:
+                        removePlayer(input);
+                        break;
+                    case DISPLAYPLAYER:
+                        displayPlayer(input);
+                        break;
+                    case RESETSTATS:
+                        resetStats(input);
+                        break;
+                    case RANKINGS:
+                        rankings(input);
+                        break;
+                    case STARTGAME:
+                        startGame(input);
+                        break;
+                    case EXIT:
+                        System.out.println();
+                        System.exit(0);
+                        break;
+                }
             }
-
-            else if (command.equals("rankings")||command.equals("rankings desc")||command.equals("rankings asc")) {
-                rankings(command);
+            catch (IllegalArgumentException ilae) {
+                System.out.print("'"+ commandInitials + "' is not a valid command.\n\n$");
             }
-
-            else if (command.equals("resetstats")) {
-                resetAll();
-            }
-
-            else if (command.length()>10 && command.substring(0,10).equals("addplayer ")) {
-                addPlayer(command);
-            }
-
-            else if (command.length()>11 && command.substring(0,11).equals("editplayer ")) {
-                editPlayer(command);
-            }
-
-            else if (command.length()>11 && command.substring(0,11).equals("resetstats ")) {
-
-                resetPlayer(command);
-            }
-
-            else if (command.equals("removeplayer")) {
-                removePlayer(command);
-            }
-
-            else if (command.length()>13 && command.substring(0,13).equals("removeplayer ")){
-
-                removePlayer(command);
-            }
-
-            else if (command.equals("displayplayer")) {
-                displayAll();
-            }
-
-            else if (command.length()>14 && command.substring(0,14).equals("displayplayer ")) {
-                displayPlayer(command);
-            }
-
-            else if (command.length()>10 && command.substring(0,10).equals("startgame ")) {
-                idle = false;
-                startGame(command);
-            }
-
+//            catch (NoSuchElementException nse) {
+//                System.out.print("'"+ input + "' is not a valid command.\n\n$");
+//            }
         }
-
     }
 
     /**
@@ -86,7 +87,6 @@ public class Nimsys {
      * @return the index of a player in the players array list.
      */
     public static int indexOfPlayer(String enteredUsername) {
-
         for (int i=0; i<players.size(); i++) {
             if (players.get(i).getUsername().compareTo(enteredUsername)==0) {
                 //return the index
@@ -94,38 +94,82 @@ public class Nimsys {
             }
         }
         return -1;
-
     }
 
     /**
      * Adds a player to the array list.
-     * @param command includes the player's information.
+     * @param input includes the player's information.
      */
-    public static void addPlayer(String command) {
+    public static void addPlayer(String input) {
+        try {
+            if (input.length()<11) {
+                throw new InvalidArgumentsNumberException();
+            }
 
-        StringTokenizer tokenizer = new StringTokenizer(command.substring(10), ",");
-        String username = tokenizer.nextToken();
-        String familyName = tokenizer.nextToken();
-        String givenName = tokenizer.nextToken();
-        NimPlayer player = new NimPlayer(username, familyName, givenName);
+            StringTokenizer tokenizer = new StringTokenizer(input.substring(10), ",");
 
-        if (indexOfPlayer(username)<0) {
-            players.add(player);
-            System.out.print("\n$");
+            if (tokenizer.countTokens()<3) {
+                throw new InvalidArgumentsNumberException();
+            }
+
+            String username = tokenizer.nextToken();
+            String familyName = tokenizer.nextToken();
+            String givenName = tokenizer.nextToken();
+            NimPlayer player = new NimPlayer(username, familyName, givenName);
+
+            if (indexOfPlayer(username)<0) {
+                players.add(player);
+                System.out.print("\n$");
+            }
+            else {
+                System.out.print("The player already exists.\n\n$");
+            }
         }
-        else {
-            System.out.print("The player already exists.\n\n$");
+        catch (InvalidArgumentsNumberException e) {
+            System.out.print(e.getMessage());
         }
+    }
 
+    /**
+     * Edits a player's information.
+     * @param input includes first name and last name.
+     */
+    public static void editPlayer(String input) {
+        try {
+            if (input.length()<12) {
+                throw new InvalidArgumentsNumberException();
+            }
+
+            StringTokenizer tokenizer = new StringTokenizer(input.substring(11), ",");
+
+            if (tokenizer.countTokens()<3) {
+                throw new InvalidArgumentsNumberException();
+            }
+
+            String username = tokenizer.nextToken();
+            String familyName = tokenizer.nextToken();
+            String givenName = tokenizer.nextToken();
+
+            if (indexOfPlayer(username)<0) {
+                System.out.print("The player does not exist.\n\n$");
+            }
+            else {
+                players.get(indexOfPlayer(username)).setFamilyName(familyName);
+                players.get(indexOfPlayer(username)).setGivenName(givenName);
+                System.out.print("\n$");
+            }
+        }
+        catch (InvalidArgumentsNumberException e) {
+            System.out.print(e.getMessage());
+        }
     }
 
     /**
      * Removes a player from the arraylist.
-     * @param command includes the player's information.
+     * @param input includes the player's information.
      */
-    public static void removePlayer(String command) {
-
-        if (command.equals("removeplayer")) {
+    public static void removePlayer(String input) {
+        if (input.equals("removeplayer")) {
             System.out.println("Are you sure you want to remove all players? (y/n)");
             String confirm = console.nextLine();
             if (confirm.equals("y")) {
@@ -134,66 +178,102 @@ public class Nimsys {
             System.out.print("\n$");
         }
         else {
-            String username = command.substring(13);
+            try {
+                if (input.length()<13) {
+                    throw new InvalidArgumentsNumberException();
+                }
 
-            if (indexOfPlayer(username)<0) {
-                System.out.print("The player does not exist.\n\n$");
+                String username = input.substring(13);
+                if (indexOfPlayer(username)<0) {
+                    System.out.print("The player does not exist.\n\n$");
+                }
+                else {
+                    players.remove(indexOfPlayer(username));
+                    System.out.print("\n$");
+                }
             }
-            else {
-                players.remove(indexOfPlayer(username));
-                System.out.print("\n$");
+            catch (InvalidArgumentsNumberException e) {
+                System.out.print(e.getMessage());
             }
         }
-
     }
 
     /**
-     * Edits a player's information.
-     * @param command includes first name and last name.
+     * Displays player's information.
+     * @param input instruct which player to display.
      */
-    public static void editPlayer(String command) {
-
-        StringTokenizer tokenizer = new StringTokenizer(command.substring(11), ",");
-
-        String username = tokenizer.nextToken();
-        String familyName = tokenizer.nextToken();
-        String givenName = tokenizer.nextToken();
-
-        if (indexOfPlayer(username)<0) {
-            System.out.print("The player does not exist.\n\n$");
+    public static void displayPlayer(String input) {
+        //Displays all the players based on the according command.
+        if (input.equals("displayplayer")) {
+            displayAll();
         }
         else {
-            players.get(indexOfPlayer(username)).setFamilyName(familyName);
-            players.get(indexOfPlayer(username)).setGivenName(givenName);
-            System.out.print("\n$");
-        }
+            try {
+                if (input.length()<13) {
+                    throw new InvalidArgumentsNumberException();
+                }
 
+                String username = input.substring(14);
+                if (indexOfPlayer(username)<0) {
+                    System.out.print("The player does not exist.\n\n$");
+                } else {
+                    players.get(indexOfPlayer(username)).display();
+                    System.out.print("\n$");
+                }
+            }
+            catch (InvalidArgumentsNumberException e) {
+                System.out.print(e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Displays all the player's information based on usernames alphabetically.
+     */
+    public static void displayAll() {
+        sortPlayers();
+
+        for (NimPlayer eachPlayer : players) {
+            eachPlayer.display();
+        }
+        System.out.print("\n$");
     }
 
     /**
      * Resets a player's win rate and games played.
-     * @param command includes which player to be reset.
+     * @param input includes which player to be reset.
      */
-    public static void resetPlayer(String command) {
-
-        String username = command.substring(11);
-
-        if (indexOfPlayer(username)<0) {
-            System.out.print("The player does not exist.\n\n$");
+    public static void resetStats(String input) {
+        if (input.equals("resetstats")) {
+            resetAllStats();
         }
         else {
-            players.get(indexOfPlayer(username)).setGamesPlayed(0);
-            players.get(indexOfPlayer(username)).setGamesWon(0);
-            System.out.print("\n$");
-        }
 
+            try {
+                if (input.length()<12) {
+                    throw new InvalidArgumentsNumberException();
+                }
+
+                String username = input.substring(11);
+                if (indexOfPlayer(username)<0) {
+                    System.out.print("The player does not exist.\n\n$");
+                }
+                else {
+                    players.get(indexOfPlayer(username)).setGamesPlayed(0);
+                    players.get(indexOfPlayer(username)).setGamesWon(0);
+                    System.out.print("\n$");
+                }
+            }
+            catch (InvalidArgumentsNumberException e) {
+                System.out.print(e.getMessage());
+            }
+        }
     }
 
     /**
      * Resets all the players' win rate and games played.
      */
-    public static void resetAll() {
-
+    public static void resetAllStats() {
         System.out.println("Are you sure you want to reset all player statistics? (y/n)");
 
         String confirm = console.nextLine();
@@ -205,48 +285,16 @@ public class Nimsys {
             }
         }
         System.out.print("\n$");
-
-    }
-
-    /**
-     * Displays player's information.
-     * @param command instruct which player to display.
-     */
-    public static void displayPlayer(String command) {
-
-        String username = command.substring(14);
-
-        if (indexOfPlayer(username)<0) {
-            System.out.print("The player does not exist.\n\n$");
-        } else {
-            players.get(indexOfPlayer(username)).display();
-            System.out.print("\n$");
-        }
-
-    }
-
-    /**
-     * Displays all the player's information based on usernames alphabetically.
-     */
-    public static void displayAll() {
-
-        sortPlayers();
-
-        for (NimPlayer eachPlayer : players) {
-            eachPlayer.display();
-        }
-        System.out.print("\n$");
-
     }
 
     /**
      * Displays a ranking list of all the players based on the win rate and games played.
-     * @param command
+     * @param input
      */
-    public static void rankings(String command) {
-
+    public static void rankings(String input) {
         rankPlayer(players);
-        if (command.equals("rankings")) {
+
+        if (input.equals("rankings")) {
             if (players.size()<10) {
                 for (int i = 0; i < players.size(); i++) {
                     players.get(i).show();
@@ -260,7 +308,7 @@ public class Nimsys {
             System.out.print("\n$");
         }
 
-        else if (command.substring(9).equals("desc")) {
+        else if (input.substring(9).equals("desc")) {
             if (players.size()<10) {
                 for (int i = 0; i<players.size(); i++) {
                     players.get(i).show();
@@ -274,7 +322,7 @@ public class Nimsys {
             System.out.print("\n$");
         }
 
-        else {
+        else  if (input.substring(9).equals("asc")) {
             if (players.size()<10) {
                 for (int i = players.size()-1; i>-1 ; i--) {
                     players.get(i).show();
@@ -288,6 +336,65 @@ public class Nimsys {
             System.out.print("\n$");
         }
 
+        else if (input.equals("rankings ")) {
+            //Throws and catch an exception when there is no valid number of arguments.
+            try {
+                throw new InvalidArgumentsNumberException();
+            }
+            catch (InvalidArgumentsNumberException e) {
+                System.out.print(e.getMessage());
+            }
+        }
+
+        else {
+            //Throws and catch an exception when the user enters an invalid command.
+            try {
+                throw new InvalidCommandException("InvalidCommandException", input);
+            }
+            catch (InvalidCommandException e) {
+                System.out.print(e.getInvalidCommand()+ " is not a valid command.\n\n$");
+            }
+        }
+    }
+
+    /**
+     * Start the Nim game.
+     * @param input includes the information needed to start a game.
+     */
+    public static void startGame(String input) {
+
+        StringTokenizer tokenizer = new StringTokenizer(input.substring(10), ",");
+
+        try{
+            if (tokenizer.countTokens() < 4) {
+                throw new InvalidArgumentsNumberException();
+            }
+            String stoneCountString= tokenizer.nextToken();
+            int stoneCount = Integer.parseInt(stoneCountString);
+
+            String upperBoundString = tokenizer.nextToken();
+            int upperBound = Integer.parseInt(upperBoundString);
+
+            String username1 = tokenizer.nextToken();
+            String username2 = tokenizer.nextToken();
+
+            if (indexOfPlayer(username1)<0||indexOfPlayer(username2)<0) {
+                System.out.print("One of the players does not exist.\n\n$");
+            }
+            else {
+                NimGame game = new NimGame(stoneCount, upperBound, players.get(indexOfPlayer(username1)),
+                        players.get(indexOfPlayer(username2)));
+                game.play();
+                idle = false;
+            }
+            idle = true;
+        }
+        catch (InvalidArgumentsNumberException iae) {
+            System.out.print(iae.getMessage());
+        }
+        catch (NumberFormatException ne) {
+            System.out.print("'" + input + "' is not a valid command.\n\n$");
+        }
     }
 
     /**
@@ -308,7 +415,7 @@ public class Nimsys {
     }
 
     /**
-     * Ranks the player based on winrate.
+     * Ranks the player based on win rate.
      */
     public static void rankPlayer(ArrayList<NimPlayer> players) {
 
@@ -329,32 +436,4 @@ public class Nimsys {
         players.set(i, players.get(precedent));
         players.set(precedent, temp);
     }
-
-    /**
-     * Start the Nim game.
-     * @param command includes the information needed to start a game.
-     */
-    public static void startGame(String command) {
-
-        StringTokenizer tokenizer = new StringTokenizer(command.substring(10), ",");
-
-        String stoneCountString= tokenizer.nextToken();
-        int stoneCount = Integer.parseInt(stoneCountString);
-
-        String upperBoundString = tokenizer.nextToken();
-        int upperBound = Integer.parseInt(upperBoundString);
-
-        String username1 = tokenizer.nextToken();
-        String username2 = tokenizer.nextToken();
-
-        if (indexOfPlayer(username1)<0||indexOfPlayer(username2)<0) {
-            System.out.print("One of the players does not exist.\n\n$");
-        }
-        else {
-            NimGame game = new NimGame(stoneCount, upperBound, players.get(indexOfPlayer(username1)),
-                    players.get(indexOfPlayer(username2)));
-            game.play();
-        } idle = true;
-    }
-
 }

@@ -148,6 +148,9 @@ public class NimPlayer implements Comparable<NimPlayer> {
 
     @Override
     public int compareTo(NimPlayer otherPlayer) {
+        if (otherPlayer == null)
+            return -1;
+
         if (getWinRate() < otherPlayer.getWinRate())
             return 1;
 

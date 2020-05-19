@@ -85,7 +85,6 @@ public class NimGame {
         //Start the Nim game.
         while (isPlaying) {
 
-            System.out.println("This is turn "+turnCount);
             //Checks the game over conditions.
             if (getStoneCount() == 0) {
 
@@ -134,28 +133,22 @@ public class NimGame {
                     }
 
                     //Asks the player to enter the valid amount of stones to be removed.
-                    if (stoneNumber < 1 || stoneNumber > getUpperBound()||stoneNumber > getStoneCount()) {
-                        if(getUpperBound() < getStoneCount()) {
-                            System.out.println("\nInvalid move. You must remove between 1 and "
-                                    + getUpperBound() + " stones.");
+                    try {
+                        if (stoneNumber < 1 || stoneNumber > getUpperBound()||stoneNumber > getStoneCount()) {
+                            throw new InvalidMoveException();
                         }
-                        else if (getUpperBound() > getStoneCount()) {
-                            System.out.println("\nInvalid move. You must remove between 1 and "
-                                    + getStoneCount() + " stones.");
-                        }
-                    }
 
-                    else {
                         //The remaining stones will decrease after a player determines the stone removal.
                         setStoneCount(getStoneCount() - stoneNumber);
                         //Updates the turn count.
                         turnCount++;
                     }
-
+                    catch (InvalidMoveException e) {
+                        System.out.println("\nInvalid move. You must remove between 1 and "
+                                + Math.min(getStoneCount(),getUpperBound()) + " stones.");
+                    }
                 }
-
                 else {
-
                     System.out.println("\n" + getPlayer2().getGivenName() + "'s turn - remove how many?");
 
                     //Initialises an integer variable to stores the number of stones that the player
@@ -166,30 +159,23 @@ public class NimGame {
                         stoneNumber = Nimsys.console.nextInt();
                     }
 
-                    //Ask the player to enter the valid amount of stones to be removed.
-                    if (stoneNumber < 1 || stoneNumber > getUpperBound()||stoneNumber > getStoneCount()) {
-                        if(getUpperBound() < getStoneCount()) {
-                            System.out.println("\nInvalid move. You must remove between 1 and "
-                                    + getUpperBound() + " stones.");
+                    //Asks the player to enter the valid amount of stones to be removed.
+                    try {
+                        if (stoneNumber < 1 || stoneNumber > getUpperBound()||stoneNumber > getStoneCount()) {
+                            throw new InvalidMoveException();
                         }
-                        else if (getUpperBound() > getStoneCount()) {
-                            System.out.println("\nInvalid move. You must remove between 1 and "
-                                    + getStoneCount() + " stones.");
-                        }
-                    }
 
-                    else {
                         //The remaining stones will decrease after a player determines the stone removal.
                         setStoneCount(getStoneCount() - stoneNumber);
                         //Updates the turn count.
                         turnCount++;
                     }
-
+                    catch (InvalidMoveException e) {
+                        System.out.println("\nInvalid move. You must remove between 1 and "
+                                + Math.min(getStoneCount(),getUpperBound()) + " stones.");
+                    }
                 }
             }
-
         }
-
     }
-
 }
