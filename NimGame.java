@@ -95,13 +95,13 @@ public class NimGame {
                 //Determines and announces the winner based on the turn count, if the turn
                 // count is odd then player 1 wins, and vice versa.
                 if (turnCount % 2 == 1) {
+                    getPlayer1().setGamesWon(getPlayer1().getGamesWon() + 1);
                     System.out.print(getPlayer1().getGivenName() + " "
                             + getPlayer1().getFamilyName() + " wins!\n\n$");
-                    getPlayer1().setGamesWon(getPlayer1().getGamesWon() + 1);
                 } else {
+                    getPlayer2().setGamesWon(getPlayer2().getGamesWon() + 1);
                     System.out.print(getPlayer2().getGivenName() + " "
                             + getPlayer2().getFamilyName() + " wins!\n\n$");
-                    getPlayer2().setGamesWon(getPlayer2().getGamesWon() + 1);
                 }
                 isPlaying = false;
             }
@@ -128,9 +128,7 @@ public class NimGame {
                     // wants to remove in the according turn.
                     int stoneNumber = 0;
 
-                    if (Nimsys.console.hasNextInt()) {
-                        stoneNumber = Nimsys.console.nextInt();
-                    }
+                    stoneNumber = Integer.parseInt(Nimsys.console.nextLine());
 
                     //Asks the player to enter the valid amount of stones to be removed.
                     try {
@@ -155,9 +153,7 @@ public class NimGame {
                     // wants to remove in the according turn.
                     int stoneNumber = 0;
 
-                    if (Nimsys.console.hasNextInt()) {
-                        stoneNumber = Nimsys.console.nextInt();
-                    }
+                    stoneNumber = Integer.parseInt(Nimsys.console.nextLine());
 
                     //Asks the player to enter the valid amount of stones to be removed.
                     try {

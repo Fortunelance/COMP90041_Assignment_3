@@ -16,9 +16,6 @@ public class Nimsys {
     //A scanner that receives input from the users.
     static Scanner console = new Scanner(System.in);
 
-    //A boolean value to controls the input choices.
-    private static boolean idle = true;
-
     //An enumeration contains all the values of the valid commands or the valid initials of the commands.
     public enum Command {ADDPLAYER, EDITPALYER, REMOVEPLAYER, DISPLAYPLAYER, RESETSTATS, RANKINGS,
         STARTGAME, EXIT}
@@ -26,12 +23,10 @@ public class Nimsys {
     public static void main(String[] args) {
         //The welcome message.
         System.out.print("Welcome to Nim\n\n$");
-
+        //Initializes a Command variable.
+        Command command;
         //Receives various inputs from the user for one or multiple time(s).
-        while (idle){
-
-            //Initializes a Command variable.
-            Command command;
+        while (true){
             //Scans the input String.
             String input = console.nextLine();
             //Breaks the input String into tokens.
@@ -75,9 +70,9 @@ public class Nimsys {
             catch (IllegalArgumentException ilae) {
                 System.out.print("'"+ commandInitials + "' is not a valid command.\n\n$");
             }
-//            catch (NoSuchElementException nse) {
-//                System.out.print("'"+ input + "' is not a valid command.\n\n$");
-//            }
+            catch (NoSuchElementException nse) {
+                System.out.print("'"+ input + "' is not a valid command.\n\n$");
+            }
         }
     }
 
@@ -385,9 +380,7 @@ public class Nimsys {
                 NimGame game = new NimGame(stoneCount, upperBound, players.get(indexOfPlayer(username1)),
                         players.get(indexOfPlayer(username2)));
                 game.play();
-                idle = false;
             }
-            idle = true;
         }
         catch (InvalidArgumentsNumberException iae) {
             System.out.print(iae.getMessage());
