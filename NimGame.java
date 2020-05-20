@@ -161,7 +161,7 @@ public class NimGame {
 
                     //Asks the player to enter the number of stones to be removed.
                     //AI player will decide the number stones to be removed of automatically.
-                    if (player1 instanceof NimHumanPlayer) {
+                    if (player2 instanceof NimHumanPlayer) {
                         stoneNumber = ((NimHumanPlayer) player2).removeStone();
                     }
                     else {

@@ -6,6 +6,8 @@
 	to finish the tasks. 
 */
 
+import java.io.Serializable;
+
 public class NimAIPlayer extends NimPlayer implements Testable {
 	// you may further extend a class or implement an interface
 	// to accomplish the tasks.\
@@ -27,28 +29,25 @@ public class NimAIPlayer extends NimPlayer implements Testable {
 	}
 
 	public static int removeStone(int stoneCount, int upperBound) {
-		if (stoneCount < upperBound+2) {
+		if (stoneCount == upperBound+2 || stoneCount == 1) {
+			return 1;
+		}
+
+		else if (stoneCount < upperBound+2) {
 			if (stoneCount == upperBound +1) {
 				return upperBound;
 			}
 
-			if(stoneCount < upperBound+1) {
+			else
 				return stoneCount-1;
-			}
 		}
 
-		if (stoneCount == upperBound+2) {
-			return 1;
+		else if (stoneCount > 2*upperBound+2) {
+				return upperBound;
 		}
 
 		else {
-			if (stoneCount > 2*upperBound+2) {
-				return upperBound;
-			}
-
-			else {
-				return stoneCount-upperBound-2;
-			}
+			return stoneCount-upperBound-2;
 		}
 	}
 	

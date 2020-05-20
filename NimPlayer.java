@@ -4,7 +4,7 @@ import java.io.Serializable;
  * A class of players of Nim game.
  * @author ZHejun Lyu 1128727
  */
-public abstract class NimPlayer implements Comparable<NimPlayer> {
+public abstract class NimPlayer implements Comparable<NimPlayer>, Serializable {
 
     private String username;
     private String familyName;

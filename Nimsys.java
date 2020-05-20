@@ -130,11 +130,11 @@ public class Nimsys {
 
     public static void addAIPlayer(String input) {
         try {
-            if (input.length()<11) {
+            if (input.length()<13) {
                 throw new InvalidArgumentsNumberException();
             }
 
-            StringTokenizer tokenizer = new StringTokenizer(input.substring(10), ",");
+            StringTokenizer tokenizer = new StringTokenizer(input.substring(12), ",");
 
             if (tokenizer.countTokens()<3) {
                 throw new InvalidArgumentsNumberException();

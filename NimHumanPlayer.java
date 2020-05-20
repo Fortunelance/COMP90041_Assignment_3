@@ -1,4 +1,4 @@
-public class NimHumanPlayer extends NimPlayer{
+public class NimHumanPlayer extends NimPlayer {
     public NimHumanPlayer() {
         super();
     }
