@@ -13,8 +13,8 @@ public class NimGame {
     public NimGame() {
         stoneCount = 0;
         upperBound = 0;
-        player1 = new NimPlayer();
-        player2 = new NimPlayer();
+        player1 = null;
+        player2 = null;
     }
     //Constructor
     public NimGame(int stoneCount, int upperBound, NimPlayer player1, NimPlayer player2) {
@@ -128,9 +128,15 @@ public class NimGame {
                     // wants to remove in the according turn.
                     int stoneNumber = 0;
 
-                    stoneNumber = Integer.parseInt(Nimsys.console.nextLine());
-
-                    //Asks the player to enter the valid amount of stones to be removed.
+                    //Asks the player to enter the number of stones to be removed.
+                    //AI player will decide the number stones to be removed of automatically.
+                    if (player1 instanceof NimHumanPlayer) {
+                        stoneNumber = ((NimHumanPlayer) player1).removeStone();
+                    }
+                    else {
+                        stoneNumber = ((NimAIPlayer)player1).removeStone(getStoneCount(),getUpperBound());
+                    }
+                    //Asks the player to enter the valid amount of stones to be removed if there is an invalid move.
                     try {
                         if (stoneNumber < 1 || stoneNumber > getUpperBound()||stoneNumber > getStoneCount()) {
                             throw new InvalidMoveException();
@@ -153,9 +159,15 @@ public class NimGame {
                     // wants to remove in the according turn.
                     int stoneNumber = 0;
 
-                    stoneNumber = Integer.parseInt(Nimsys.console.nextLine());
-
-                    //Asks the player to enter the valid amount of stones to be removed.
+                    //Asks the player to enter the number of stones to be removed.
+                    //AI player will decide the number stones to be removed of automatically.
+                    if (player1 instanceof NimHumanPlayer) {
+                        stoneNumber = ((NimHumanPlayer) player2).removeStone();
+                    }
+                    else {
+                        stoneNumber = ((NimAIPlayer)player2).removeStone(getStoneCount(),getUpperBound());
+                    }
+                    //Asks the player to enter the valid amount of stones to be removed if there is an invalid move.
                     try {
                         if (stoneNumber < 1 || stoneNumber > getUpperBound()||stoneNumber > getStoneCount()) {
                             throw new InvalidMoveException();

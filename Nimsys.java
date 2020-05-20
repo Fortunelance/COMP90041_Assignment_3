@@ -1,7 +1,5 @@
-import java.util.NoSuchElementException;
-import java.util.Scanner;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 /**
  * A class maintains a list of instances of NimPlayer with their attributes and variables.
@@ -11,13 +9,13 @@ import java.util.StringTokenizer;
  */
 public class Nimsys {
     //Initials an array list that stores the instances of NimPlayer.
-    private static ArrayList<NimPlayer> players = new ArrayList<>();
+    private final static ArrayList<NimPlayer> players = new ArrayList<>();
 
     //A scanner that receives input from the users.
     static Scanner console = new Scanner(System.in);
 
     //An enumeration contains all the values of the valid commands or the valid initials of the commands.
-    public enum Command {ADDPLAYER, EDITPALYER, REMOVEPLAYER, DISPLAYPLAYER, RESETSTATS, RANKINGS,
+    public enum Command {ADDPLAYER, ADDAIPLAYER,EDITPALYER, REMOVEPLAYER, DISPLAYPLAYER, RESETSTATS, RANKINGS,
         STARTGAME, EXIT}
 
     public static void main(String[] args) {
@@ -26,6 +24,7 @@ public class Nimsys {
         //Initializes a Command variable.
         Command command;
         //Receives various inputs from the user for one or multiple time(s).
+        readStatsFile();
         while (true){
             //Scans the input String.
             String input = console.nextLine();
@@ -42,6 +41,9 @@ public class Nimsys {
                 switch (command) {
                     case ADDPLAYER:
                         addPlayer(input);
+                        break;
+                    case ADDAIPLAYER:
+                        addAIPlayer(input);
                         break;
                     case EDITPALYER:
                         editPlayer(input);
@@ -62,6 +64,7 @@ public class Nimsys {
                         startGame(input);
                         break;
                     case EXIT:
+                        writeStatsFile();
                         System.out.println();
                         System.exit(0);
                         break;
@@ -110,7 +113,37 @@ public class Nimsys {
             String username = tokenizer.nextToken();
             String familyName = tokenizer.nextToken();
             String givenName = tokenizer.nextToken();
-            NimPlayer player = new NimPlayer(username, familyName, givenName);
+            NimHumanPlayer player = new NimHumanPlayer(username, familyName, givenName);
+
+            if (indexOfPlayer(username)<0) {
+                players.add(player);
+                System.out.print("\n$");
+            }
+            else {
+                System.out.print("The player already exists.\n\n$");
+            }
+        }
+        catch (InvalidArgumentsNumberException e) {
+            System.out.print(e.getMessage());
+        }
+    }
+
+    public static void addAIPlayer(String input) {
+        try {
+            if (input.length()<11) {
+                throw new InvalidArgumentsNumberException();
+            }
+
+            StringTokenizer tokenizer = new StringTokenizer(input.substring(10), ",");
+
+            if (tokenizer.countTokens()<3) {
+                throw new InvalidArgumentsNumberException();
+            }
+
+            String username = tokenizer.nextToken();
+            String familyName = tokenizer.nextToken();
+            String givenName = tokenizer.nextToken();
+            NimAIPlayer player = new NimAIPlayer(username, familyName, givenName);
 
             if (indexOfPlayer(username)<0) {
                 players.add(player);
@@ -195,7 +228,7 @@ public class Nimsys {
 
     /**
      * Displays player's information.
-     * @param input instruct which player to display.
+     * @param input instruct which player to display or all the players will be displayed.
      */
     public static void displayPlayer(String input) {
         //Displays all the players based on the according command.
@@ -284,15 +317,15 @@ public class Nimsys {
 
     /**
      * Displays a ranking list of all the players based on the win rate and games played.
-     * @param input
+     * @param input determines the ranking order, which can be either ascending or descending.
      */
     public static void rankings(String input) {
         rankPlayer(players);
 
         if (input.equals("rankings")) {
             if (players.size()<10) {
-                for (int i = 0; i < players.size(); i++) {
-                    players.get(i).show();
+                for (NimPlayer player : players) {
+                    player.show();
                 }
             }
             else {
@@ -305,8 +338,8 @@ public class Nimsys {
 
         else if (input.substring(9).equals("desc")) {
             if (players.size()<10) {
-                for (int i = 0; i<players.size(); i++) {
-                    players.get(i).show();
+                for (NimPlayer player : players) {
+                    player.show();
                 }
             }
             else {
@@ -424,9 +457,64 @@ public class Nimsys {
 
     }
 
+    /**
+     * Interchanges two elements' indexes in an array list that contains NimPlayer's instances.
+     * @param players Array list which contains NimPlayer's instances.
+     * @param precedent One of the array list index.
+     * @param i Another array list index.
+     */
     public static void interchangePlayer(ArrayList<NimPlayer> players, int precedent, int i) {
-        NimPlayer temp = new NimPlayer(players.get(i));
-        players.set(i, players.get(precedent));
-        players.set(precedent, temp);
+        if (players.get(i) instanceof NimHumanPlayer) {
+            NimHumanPlayer temp = new NimHumanPlayer(players.get(i));
+            players.set(i, players.get(precedent));
+            players.set(precedent, temp);
+        }
+        else {
+            NimAIPlayer temp = new NimAIPlayer(players.get(i));
+            players.set(i, players.get(precedent));
+            players.set(precedent, temp);
+        }
+    }
+
+    /**
+     * Reads the files that stores an ArrayList that contains instances of NimPlayer.
+     * Adds all the instances of NimPlayer to the initialized empty ArrayList called players.
+     * The file's name should be "players.dat".
+     * Does nothing if there is no such file.
+     */
+    public static void readStatsFile() {
+        String filename = "players.dat";
+        File fileObject = new File(filename);
+
+        if (fileObject.exists()) {
+            ObjectInputStream inputStream;
+
+            try {
+                inputStream = new ObjectInputStream(new FileInputStream(filename));
+                Object savedPlayers = inputStream.readObject();
+                players.addAll((ArrayList<NimPlayer>) savedPlayers);
+            }
+            catch (IOException | ClassNotFoundException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Stores the ArrayList players to a file.
+     * The file's name should be "players.dat".
+     * A file with the same name will be created if there is no such file exits.
+     */
+    public static void writeStatsFile() {
+        String filename = "players.dat";
+        ObjectOutputStream outputStream;
+
+        try {
+            outputStream = new ObjectOutputStream(new FileOutputStream(filename));
+            outputStream.writeObject(players);
+        }
+        catch (java.io.IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
