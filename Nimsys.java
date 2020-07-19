@@ -15,8 +15,8 @@ public class Nimsys {
     static Scanner console = new Scanner(System.in);
 
     //An enumeration contains all the values of the valid commands or the valid initials of the commands.
-    public enum Command {ADDPLAYER, ADDAIPLAYER,EDITPALYER, REMOVEPLAYER, DISPLAYPLAYER, RESETSTATS, RANKINGS,
-        STARTGAME, EXIT}
+    public enum Command {ADDPLAYER, ADDAIPLAYER, EDITPALYER, REMOVEPLAYER, DISPLAYPLAYER,
+        RESETSTATS, RANKINGS, STARTGAME, STARTADVANCEDGAME, EXIT}
 
     public static void main(String[] args) {
         //The welcome message.
@@ -62,6 +62,9 @@ public class Nimsys {
                         break;
                     case STARTGAME:
                         startGame(input);
+                        break;
+                    case STARTADVANCEDGAME:
+                        startAdvancedGame(input);
                         break;
                     case EXIT:
                         writeStatsFile();
@@ -128,6 +131,10 @@ public class Nimsys {
         }
     }
 
+    /**
+     * Adds an AI player which is an instance of the sub class of NimPlayer class.
+     * @param input The String that specify the attributes of the AI player.
+     */
     public static void addAIPlayer(String input) {
         try {
             if (input.length()<13) {
@@ -320,7 +327,7 @@ public class Nimsys {
      * @param input determines the ranking order, which can be either ascending or descending.
      */
     public static void rankings(String input) {
-        rankPlayer(players);
+        rankPlayer();
 
         if (input.equals("rankings")) {
             if (players.size()<10) {
@@ -393,8 +400,10 @@ public class Nimsys {
 
         StringTokenizer tokenizer = new StringTokenizer(input.substring(10), ",");
 
+        int expectedNumberOfArguments = 4;
+
         try{
-            if (tokenizer.countTokens() < 4) {
+            if (tokenizer.countTokens() < expectedNumberOfArguments) {
                 throw new InvalidArgumentsNumberException();
             }
             String stoneCountString= tokenizer.nextToken();
@@ -410,7 +419,46 @@ public class Nimsys {
                 System.out.print("One of the players does not exist.\n\n$");
             }
             else {
-                NimGame game = new NimGame(stoneCount, upperBound, players.get(indexOfPlayer(username1)),
+                NimOriginalGame game = new NimOriginalGame(stoneCount,
+                        upperBound,
+                        players.get(indexOfPlayer(username1)),
+                        players.get(indexOfPlayer(username2)));
+                game.play();
+            }
+        }
+        catch (InvalidArgumentsNumberException iae) {
+            System.out.print(iae.getMessage());
+        }
+        catch (NumberFormatException ne) {
+            System.out.print("'" + input + "' is not a valid command.\n\n$");
+        }
+    }
+
+    /**
+     * Start an advanced version of Nim game
+     * @param input The input that has the information to start the game
+     */
+    public static void startAdvancedGame(String input) {
+        StringTokenizer tokenizer = new StringTokenizer(input.substring(18), ",");
+
+        int expectedNumberOfArguments = 3;
+
+        try{
+            if (tokenizer.countTokens() < expectedNumberOfArguments) {
+                throw new InvalidArgumentsNumberException();
+            }
+            String stoneCountString= tokenizer.nextToken();
+            int stoneCount = Integer.parseInt(stoneCountString);
+
+            String username1 = tokenizer.nextToken();
+            String username2 = tokenizer.nextToken();
+
+            if (indexOfPlayer(username1)<0||indexOfPlayer(username2)<0) {
+                System.out.print("One of the players does not exist.\n\n$");
+            }
+            else {
+                NimAdvancedGame game = new NimAdvancedGame(stoneCount,
+                        players.get(indexOfPlayer(username1)),
                         players.get(indexOfPlayer(username2)));
                 game.play();
             }
@@ -443,16 +491,16 @@ public class Nimsys {
     /**
      * Ranks the player based on win rate.
      */
-    public static void rankPlayer(ArrayList<NimPlayer> players) {
+    public static void rankPlayer() {
 
         for (int i=0; i<players.size()-1; i++) {
             int precedent = i;
-            for (int j=i+1; j< players.size(); j++) {
+            for (int j=i+1; j < players.size(); j++) {
                 if (players.get(j).compareTo(players.get(precedent))<0) {
                     precedent = j;
                 }
-                interchangePlayer(players, precedent, i);
             }
+            interchangePlayer(players, precedent, i);
         }
 
     }

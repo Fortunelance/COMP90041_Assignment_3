@@ -2,12 +2,12 @@
  * A class of a round of Nim game.
  * @author Zhejun Lyu 1128727
  */
-public class NimGame {
-
+public abstract class NimGame {
     private int stoneCount;
-    private int upperBound;
-    private NimPlayer player1;
-    private NimPlayer player2;
+    private final int upperBound;
+    private final NimPlayer player1;
+    private final NimPlayer player2;
+    private int turnCount;
 
     //Constructor
     public NimGame() {
@@ -15,6 +15,7 @@ public class NimGame {
         upperBound = 0;
         player1 = null;
         player2 = null;
+        turnCount = 1;
     }
     //Constructor
     public NimGame(int stoneCount, int upperBound, NimPlayer player1, NimPlayer player2) {
@@ -22,6 +23,7 @@ public class NimGame {
         this.upperBound = upperBound;
         this.player1 = player1;
         this.player2 = player2;
+        this.turnCount = 1;
     }
 
     /**
@@ -64,10 +66,21 @@ public class NimGame {
         return player2;
     }
 
+    public int getTurnCount() {
+        return turnCount;
+    }
+
+    public void setTurnCount(int turnCount) {
+        this.turnCount = turnCount;
+    }
+
     /**
-     * Plays a round of Nim game including two players from NimPlayer, along with settled number of total stone and
+     * Plays a round of Nim game including two players from NimPlayer,
+     * along with settled number of total stone and
      * the number of stones to be removed in a turn.
      */
+
+
     public void play() {
 
         //Prints the starting information.
@@ -79,35 +92,14 @@ public class NimGame {
         //Initials a boolean value to control the game status.
         boolean isPlaying = true;
 
-        //Initials an integer value as the count of turns.
-        int turnCount = 1;
-
         //Start the Nim game.
         while (isPlaying) {
-
             //Checks the game over conditions.
             if (getStoneCount() == 0) {
-
-                System.out.println("\nGame Over");
-                getPlayer1().setGamesPlayed(getPlayer1().getGamesPlayed() + 1);
-                getPlayer2().setGamesPlayed(getPlayer2().getGamesPlayed() + 1);
-
-                //Determines and announces the winner based on the turn count, if the turn
-                // count is odd then player 1 wins, and vice versa.
-                if (turnCount % 2 == 1) {
-                    getPlayer1().setGamesWon(getPlayer1().getGamesWon() + 1);
-                    System.out.print(getPlayer1().getGivenName() + " "
-                            + getPlayer1().getFamilyName() + " wins!\n\n$");
-                } else {
-                    getPlayer2().setGamesWon(getPlayer2().getGamesWon() + 1);
-                    System.out.print(getPlayer2().getGivenName() + " "
-                            + getPlayer2().getFamilyName() + " wins!\n\n$");
-                }
-                isPlaying = false;
+                isPlaying = gameOver(getPlayer1(),getPlayer2(),getTurnCount());
             }
-            //Game is not over, resuming the current turn.
+            //Game is not over, resuming the current turn of the game.
             else {
-
                 System.out.print("\n" + getStoneCount() + " stones left:");
 
                 //Print out the initial asterisk.
@@ -119,71 +111,86 @@ public class NimGame {
                 }
 
                 //Decides the turn for the according player based on the turn count. For example,
-                // if the turn count is odd, then it is player1's turn.
-                if (turnCount % 2 == 1) {
-
-                    System.out.println("\n" + getPlayer1().getGivenName() + "'s turn - remove how many?");
-
-                    //Initialises an integer variable to stores the number of stones that the player
-                    // wants to remove in the according turn.
-                    int stoneNumber = 0;
-
-                    //Asks the player to enter the number of stones to be removed.
-                    //AI player will decide the number stones to be removed of automatically.
-                    if (player1 instanceof NimHumanPlayer) {
-                        stoneNumber = ((NimHumanPlayer) player1).removeStone();
-                    }
-                    else {
-                        stoneNumber = ((NimAIPlayer)player1).removeStone(getStoneCount(),getUpperBound());
-                    }
-                    //Asks the player to enter the valid amount of stones to be removed if there is an invalid move.
-                    try {
-                        if (stoneNumber < 1 || stoneNumber > getUpperBound()||stoneNumber > getStoneCount()) {
-                            throw new InvalidMoveException();
-                        }
-
-                        //The remaining stones will decrease after a player determines the stone removal.
-                        setStoneCount(getStoneCount() - stoneNumber);
-                        //Updates the turn count.
-                        turnCount++;
-                    }
-                    catch (InvalidMoveException e) {
-                        System.out.println("\nInvalid move. You must remove between 1 and "
-                                + Math.min(getStoneCount(),getUpperBound()) + " stones.");
-                    }
+                // if the turn count is odd, then it is player1's turn, and vice versa.
+                if (getTurnCount() % 2 == 1) {
+                    playerTurn(getPlayer1());
                 }
                 else {
-                    System.out.println("\n" + getPlayer2().getGivenName() + "'s turn - remove how many?");
-
-                    //Initialises an integer variable to stores the number of stones that the player
-                    // wants to remove in the according turn.
-                    int stoneNumber = 0;
-
-                    //Asks the player to enter the number of stones to be removed.
-                    //AI player will decide the number stones to be removed of automatically.
-                    if (player2 instanceof NimHumanPlayer) {
-                        stoneNumber = ((NimHumanPlayer) player2).removeStone();
-                    }
-                    else {
-                        stoneNumber = ((NimAIPlayer)player2).removeStone(getStoneCount(),getUpperBound());
-                    }
-                    //Asks the player to enter the valid amount of stones to be removed if there is an invalid move.
-                    try {
-                        if (stoneNumber < 1 || stoneNumber > getUpperBound()||stoneNumber > getStoneCount()) {
-                            throw new InvalidMoveException();
-                        }
-
-                        //The remaining stones will decrease after a player determines the stone removal.
-                        setStoneCount(getStoneCount() - stoneNumber);
-                        //Updates the turn count.
-                        turnCount++;
-                    }
-                    catch (InvalidMoveException e) {
-                        System.out.println("\nInvalid move. You must remove between 1 and "
-                                + Math.min(getStoneCount(),getUpperBound()) + " stones.");
-                    }
+                    playerTurn(getPlayer2());
                 }
             }
         }
+    }
+
+    /**
+     * Allows a player plays the current turn.
+     * Updates the turn count and the stone count if the player finishes the turn.
+     * @param player The player who should play this turn.
+     */
+    public void playerTurn(NimPlayer player) {
+        System.out.println("\n" + player.getGivenName() + "'s turn - remove how many?");
+
+        //Initialises an integer variable to stores the number of stones that the player
+        // wants to remove in the according turn. The initial value only serves for the
+        // AI players.
+        int stoneNumber = getStoneCount()-1;
+
+        //Asks the player to enter the number of stones to be removed.
+        //AI player will decide the number stones to be removed of automatically.
+        if (player instanceof NimHumanPlayer) {
+            stoneNumber = ((NimHumanPlayer) player).originalMove();
+        }
+        else {
+            stoneNumber = ((NimAIPlayer)player).originalMove(getStoneCount(),getUpperBound(),stoneNumber);
+        }
+
+        //Asks the player to enter the valid amount of stones to be removed if there is an invalid move.
+        try {
+            if (stoneNumber < 1 || stoneNumber > getUpperBound()||stoneNumber > getStoneCount()) {
+                throw new InvalidMoveException();
+            }
+
+            //The remaining stones will decrease after a player determines the stone removal.
+            setStoneCount(getStoneCount() - stoneNumber);
+            //Updates the turn count.
+            setTurnCount(getTurnCount()+1);
+        }
+        catch (InvalidMoveException e) {
+            System.out.println("\nInvalid move. You must remove between 1 and "
+                    + Math.min(getStoneCount(),getUpperBound()) + " stones.");
+        }
+    }
+
+    /**
+     * Ends the game.
+     * @param player1 A player in the current game.
+     * @param player2 Another player in the current game.
+     * @param turnCount The turn count when the game is ending.
+     * @return A boolean variable that passes to another boolean variable isPlaying
+     * that continues/ends the game play.
+     */
+    public boolean gameOver(NimPlayer player1, NimPlayer player2, int turnCount) {
+        System.out.println("\nGame Over");
+        player1.setGamesPlayed(player1.getGamesPlayed() + 1);
+        player2.setGamesPlayed(player2.getGamesPlayed() + 1);
+
+        //Determines and announces the winner based on the turn count, if the turn
+        // count is odd then player 1 wins, and vice versa.
+        if (turnCount % 2 == 1) {
+            announceWinner(player1);
+        } else {
+            announceWinner(player2);
+        }
+        return false;
+    }
+
+    /**
+     * Announces the winner of the current game.
+     * @param player the player who is the winner.
+     */
+    public void announceWinner(NimPlayer player) {
+        player.setGamesWon(player.getGamesWon() + 1);
+        System.out.print(player.getGivenName() + " "
+                + player.getFamilyName() + " wins!\n\n$");
     }
 }

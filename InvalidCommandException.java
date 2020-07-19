@@ -1,3 +1,7 @@
+/**
+ * Extends the Exception class for a specific kind of exception
+ * @author Zhejun Lyu 1128727
+ */
 public class InvalidCommandException extends Exception {
 
     private String invalidCommand;

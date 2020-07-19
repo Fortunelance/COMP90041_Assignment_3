@@ -153,14 +153,20 @@ public abstract class NimPlayer implements Comparable<NimPlayer>, Serializable {
         if (otherPlayer == null)
             return -1;
 
-        if (getWinRate() < otherPlayer.getWinRate())
+        if (getWinRate() < otherPlayer.getWinRate()) {
             return 1;
+        }
 
-        else if (getWinRate() == otherPlayer.getWinRate())
+        else if (getWinRate() > otherPlayer.getWinRate()) {
+            return -1;
+        }
+
+        else if (getWinRate() == otherPlayer.getWinRate()) {
             return getUsername().compareTo(otherPlayer.getUsername());
+        }
 
         else
-            return -1;
+            return 0;
     }
 
 }
