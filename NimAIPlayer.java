@@ -8,7 +8,9 @@
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class NimAIPlayer extends NimPlayer implements Testable {
@@ -83,6 +85,9 @@ public class NimAIPlayer extends NimPlayer implements Testable {
 	 */
 	public String advancedMove(boolean[] available, String lastMove) {
 		StringBuilder move = new StringBuilder();
+		ArrayDeque<boolean[]> rounds = new ArrayDeque<>();
+		
+		rounds.add(available);
 
 		return move.toString();
 	}
